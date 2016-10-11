@@ -1,0 +1,190 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+<style>
+*{ margin:0; padding:0; list-style:none;}
+body{background:url(../images/bg.jpg) no-repeat;}
+#ul1{ width:336px; margin:80px auto;}
+#ul1 li{  float:left; margin:10px;}
+#ul1 li.box{ border:2px dashed #f60;}
+</style>
+<script src="move.js"></script>
+<script>
+function ready(fn)
+{
+	if (document.addEventListener)
+	{
+		document.addEventListener('DOMContentLoaded', fn, false);
+	}
+	else
+	{
+		document.attachEvent('onreadystatechange', function (){
+			if (document.readyState == 'complete')
+			{
+				fn();
+			}
+		});
+	}
+}
+ready(function(){
+	var oUl=document.getElementById('ul1');	
+	var aLi=oUl.children;
+	
+	var zIndex=1000;
+	
+	//布局转化
+	window.onload=function (){
+	var aPos=[];
+	for(var i=0; i<aLi.length; i++){
+		aPos[i]={ left:aLi[i].offsetLeft, top:aLi[i].offsetTop};
+	}
+	
+	for(var i=0; i<aLi.length; i++){
+		aLi[i].style.left=aPos[i].left+'px';
+		aLi[i].style.top=aPos[i].top+'px';
+		aLi[i].style.position='absolute';
+		aLi[i].style.margin=0;		
+	}
+	
+	
+	//调用drag
+	for(var i=0; i<aLi.length; i++){
+		drag(aLi[i]);
+		aLi[i].index=i;
+	}
+	
+	//drag
+	function drag(obj){
+		obj.onmousedown=function(ev){
+			var oEvent=ev || event;
+			var disX=oEvent.clientX-obj.offsetLeft;
+			var disY=oEvent.clientY-obj.offsetTop;
+			
+			obj.style.zIndex=zIndex++;
+			
+			document.onmousemove=function(ev){
+				var oEvent=ev || event;
+				
+				obj.style.left=oEvent.clientX-disX+'px';
+				obj.style.top=oEvent.clientY-disY+'px';
+				
+				for(var i=0; i<aLi.length; i++){
+					aLi[i].className='';
+				}
+				//碰撞检测
+				//换位置
+				var oNear=findNearest(obj);
+				if(oNear && oNear!=obj){
+					var m=obj.index;
+					var n=oNear.index;
+					
+					if(m<n){
+						for(var i=0; i<aLi.length; i++){
+							if(aLi[i].index>=m+1 && aLi[i].index<=n){
+								aLi[i].index--;
+								move(aLi[i],aPos[aLi[i].index]);	
+							}
+						}
+						obj.index=n;
+					}else{
+						for(var i=0; i<aLi.length; i++){
+							if(aLi[i].index>=n && aLi[i].index<=m-1){
+								aLi[i].index++;
+								move(aLi[i],aPos[aLi[i].index]);	
+							}
+						}
+						obj.index=n;
+					}
+				}
+			};
+			document.onmouseup=function(){
+				document.onmousemove=null;
+				document.onmouseup=null;
+				
+				move(obj,aPos[obj.index]);
+			};
+			return false;
+		};
+	}
+	
+	function findNearest(obj){
+		var iMin=new Date().getTime();
+		var iMinIndex=-1;
+		for(var i=0; i<aLi.length; i++){
+			//if(obj==aLi[i])continue; //?
+			if(collTest(obj,aLi[i])){
+				var dis=getDis(obj,aLi[i]);
+				if(dis<iMin){
+					iMin=dis;
+					iMinIndex=i;	
+				}
+			}
+		}
+		
+		if(iMinIndex==-1){
+			return null;
+		}else{
+			return aLi[iMinIndex];
+		}
+	}
+	
+	//getDis
+	function getDis(obj,obj2){
+		var l1=obj.offsetLeft+obj.offsetWidth;
+		var l2=aPos[obj2.index].left+obj2.offsetWidth;
+		
+		var t1=obj.offsetTop+obj.offsetHeight;
+		var t2=aPos[obj2.index].top+obj2.offsetHeight;
+		
+		var a=l1-l2;
+		var b=t1-t2;
+		return Math.sqrt(a*a+b*b);
+	}
+	
+	//collTest
+	function collTest(obj,obj2){
+		var l1=obj.offsetLeft;
+		var t1=obj.offsetTop;
+		var b1=obj.offsetTop+obj.offsetHeight;
+		var r1=obj.offsetLeft+obj.offsetWidth;
+		
+		var l2=aPos[obj2.index].left;
+		var t2=aPos[obj2.index].top;
+		var b2=aPos[obj2.index].top+obj2.offsetHeight;
+		var r2=aPos[obj2.index].left+obj2.offsetWidth;
+		
+		if(r1<l2 || l1>r2 || b1<t2 || t1>b2){
+			return false;
+		}else{
+			return true;
+		}
+	}
+	};
+});
+
+</script>
+</head>
+
+<body>
+<ul id="ul1">
+	<li><img src="../images/ico/1.png"></li>
+    <li><img src="../images/ico/2.png"></li>
+    <li><img src="../images/ico/3.png"></li>
+    <li><img src="../images/ico/4.png"></li>
+    <li><img src="../images/ico/5.png"></li>
+    <li><img src="../images/ico/6.png"></li>
+    <li><img src="../images/ico/7.png"></li>
+    <li><img src="../images/ico/8.png"></li>
+    <li><img src="../images/ico/9.png"></li>
+    <li><img src="../images/ico/10.png"></li>
+    <li><img src="../images/ico/11.png"></li>
+    <li><img src="../images/ico/12.png"></li>
+    <li><img src="../images/ico/13.png"></li>
+    <li><img src="../images/ico/14.png"></li>
+    <li><img src="../images/ico/15.png"></li>
+    <li><img src="../images/ico/16.png"></li>
+</ul>
+</body>
+</html>
